@@ -15,7 +15,7 @@ x_midpoint = Curses.cols / 2 # save coordinate of midpoint of x axis
 y_midpoint = Curses.lines / 2 # save coordinate of midpoint of y axis
 
 # draw a vertical line from y = 0 to y = stdscr.height, centered on x axis
-(0).upto(screen_height - 1) do |i| #for some reason (nb_lines) without -1 always draws an extra character
+screen_height.times do |i| #for some reason (nb_lines) without -1 always draws an extra character
     Curses.setpos(i, x_midpoint)
     Curses.addstr("|")
 end
