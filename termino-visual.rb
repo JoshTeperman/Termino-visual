@@ -1,23 +1,11 @@
+# DEPENDENCIES -->
 
 require 'csv'
 require 'curses'
 require 'descriptive_statistics'
+require 'pry'
 
-def single_argument_specified?()
-# Checks if there is a single argument passed at CL
-    if ARGV.length == 1
-        return true
-    end
-    return false
-end
-
-def file_is_CSV?()
-# Checks if the first argument passed at CL is "*.csv"
-    if ARGV[0].strip.match(/\w+\.csv$/)
-        return true
-    end
-    return false
-end
+# CLASSES --> 
 
 class Scatterplot
 
@@ -30,11 +18,10 @@ class Scatterplot
         @x_values = get_variable_values(0)
         @y_values = get_variable_values(1)
         @transformed_data = produce_array_of_coordinates(@x_values, @y_values)
-        
     end
 
     def produce_array_of_coordinates(variable_arr1, variable_arr2)
-    # This method takes in two arrays
+    # This method takes in two arrays, each of a particular data set (temperature, month etc)
     # It outputs an array with many two-index arrays composed of an X and a Y value.
     # These correspond to single observations to be plotted.
         variable_arr1 = scale_to_user_screen_size(variable_arr1, @screen_width)
@@ -78,45 +65,13 @@ class Scatterplot
     end
 end
 
-def main()
-    # Check if a single .csv file is passed as single argument
-    # If so save it as a filename, else show user correct usage
-    if single_argument_specified?() && file_is_CSV?()
-        filename = ARGV[0].strip
-    else
-        puts "Usage: 'ruby termino-visual.rb *.csv'"
-        abort
-    end
-
-    # If the file cannot be found then alert the user to check for spelling
-    if !File.exist?(filename)
-        puts "That file does not exist at the specified path. Please check for spelling errors."
-        abort
-    end
-
-    # Take the file specified by the user and give it to the Scatterplot
-    csv_text = File.read(filename)
-    csv_data = CSV.parse(csv_text)
-
-    Curses.init_screen
-    screen_height = Curses.lines
-    screen_width = Curses.cols
-    Curses.close_screen
-
-    scatter = Scatterplot.new(csv_data, screen_width, screen_height)
-    scatter_data = scatter.transformed_data
-
-    drawn_graph = Visualiser.new(scatter_data)
-    drawn_graph.draw_scatterplot
-end
-
-
 class Visualiser
     # include 'Curses'
 
-    attr_reader :array_of_observations
+    attr_reader :filename, :array_of_observations
 
-    def initialize(array_of_observations)
+    def initialize(filename, array_of_observations)
+        @filename = filename
         @array_of_observations = array_of_observations
         @screen_height = Curses.lines
         @screen_width = Curses.cols
@@ -156,6 +111,7 @@ class Visualiser
 
         draw_x_axis(@screen_width, @screen_height - 1)
         draw_y_axis(@screen_height, 0)
+        draw_file_name_to_screen(format_filename_for_printing(@filename), x_midpoint)
 
         @array_of_observations.each do |observation|
             draw_single_observation(observation)
@@ -175,7 +131,79 @@ class Visualiser
         Curses.addch("*")   
     end
 
+    def format_filename_for_printing(filename)
+        #Input -> *.csv filename 
+        #Output -> filname concatenated to a new string with spaces
+        filename_with_csv_removed = filename.delete(".csv")
+        if filename_with_csv_removed.include?("_")
+            split_string = csv_removed.split("_")
+            split_string.join(" ")
+        end
+        return split_string
+    end
 
+    def draw_file_name_to_screen(formatted_filename, x_midpoint)
+        #Input -> Formatted filename ready for printing
+        #Output -> Curses draw commands
+        x_coordinate = x_midpoint - (formatted_filename.length / 2)
+        Curses.setpos(@screen_height - 3, x_coordinate)
+        Curses.addstr(filename_as_formatted_string)
+    end
 end
 
+# HELPER METHODS -->
+
+def single_argument_specified?()
+    # Checks if there is a single argument passed at CL
+        if ARGV.length == 1
+            return true
+        end
+        return false
+    end
+    
+    def file_is_CSV?()
+    # Checks if the first argument passed at CL is "*.csv"
+        if ARGV[0].strip.match(/\w+\.csv$/)
+            return true
+        end
+        return false
+    end
+
+def main()
+    # Check if a single .csv file is passed as single argument
+    # If so save it as a filename, else show user correct usage
+    if single_argument_specified?() && file_is_CSV?()
+        filename = ARGV[0].strip
+        
+    else
+        puts "Usage: 'ruby termino-visual.rb *.csv'"
+        abort
+    end
+
+    # If the file cannot be found then alert the user to check for spelling
+    if !File.exist?(filename)
+        puts "That file does not exist at the specified path. Please check for spelling errors."
+        abort
+    end
+
+    # Take the file specified by the user and give it to the Scatterplot
+    csv_text = File.read(filename)
+    csv_data = CSV.parse(csv_text)
+
+    Curses.init_screen
+    screen_height = Curses.lines
+    screen_width = Curses.cols
+    Curses.close_screen
+
+    scatter = Scatterplot.new(csv_data, screen_width, screen_height)
+    scatter_data = scatter.transformed_data
+
+    drawn_graph = Visualiser.new(filename, scatter_data)
+    drawn_graph.draw_scatterplot()
+end
+
+
+# RUN PROGRAM -->
+
 main()
+
