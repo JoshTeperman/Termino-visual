@@ -22,14 +22,23 @@ end
 class Scatterplot
     def initialize(data)
         @raw_data = data
-        @transformed_data = data
+        @x_values = get_dimension_values(0)
+        @y_values = get_dimension_values(1)
     end
 
-    def convert_CSV_to_array()
+    def transform_data()
     # This method takes the raw data from the CSV and populates 
     # an array with many arrays composed of an X and a Y value.
     # These correspond to single observations to be plotted.
 
+    end
+
+    def get_dimension_values(dimension)
+        dimension_values_array = []
+        @raw_data.each do |row|
+            dimension_values_array << row[dimension]
+        end
+        return dimension_values_array
     end
 
     def convert_all_values_to_floats()
@@ -73,6 +82,8 @@ def main()
     csv_data = CSV.parse(csv_text)
 end
 
+main()
+
 csv_text = File.read("BOMWeatherData.csv")
 weather_csv = CSV.parse(csv_text, :headers => true)
 # GET Data-point A (months):
@@ -101,10 +112,13 @@ end
 
 temp_array = get_temperature(weather_csv)
 
-def create_xy_coordinate(x_data_set_array, y_data_set_array)
-#input -> One x coordinate (x value) and one y coordinate (y value) sliced from arrays
-#output -> Single array in x,y coordinate format to be pushed to array_of_coordinates
-
+def create_xy_coordinate(x_array, y_array, index)
+    new_coordinate = []
+    x_coordinate = x_array.slice(index)
+    y_coordinate = y_array.slice(index)
+    new_coordinate << x_coordinate
+    new_coordinate << y_coordinate
+    return new_coordinate
 end
 
 def create_array_of_xy_coordinates(x_array, y_array)
@@ -119,15 +133,6 @@ def create_array_of_xy_coordinates(x_array, y_array)
         counter += 1
     end
     return array_of_coordinates
-end
-
-def create_xy_coordinate(x_array, y_array, index)
-    new_coordinate = []
-    x_coordinate = x_array.slice(index)
-    y_coordinate = y_array.slice(index)
-    new_coordinate << x_coordinate
-    new_coordinate << y_coordinate
-    return new_coordinate
 end
 
 
