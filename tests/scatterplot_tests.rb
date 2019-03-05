@@ -59,7 +59,7 @@ class Scatterplot
     end
 end
 
-csv_file = File.open("../BOMWeatherData.csv")
+csv_file = File.open("./BOMWeatherData.csv")
 weather_data = CSV.parse(csv_file)
 
 Curses.init_screen

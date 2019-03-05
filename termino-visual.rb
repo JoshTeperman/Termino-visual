@@ -3,7 +3,6 @@ require 'csv'
 require 'curses'
 require 'descriptive_statistics'
 
-
 def single_argument_specified?()
 # Checks if there is a single argument passed at CL
     if ARGV.length == 1
@@ -21,6 +20,9 @@ def file_is_CSV?()
 end
 
 class Scatterplot
+
+    attr_reader :transformed_data
+
     def initialize(data, screen_width, screen_height)
         @raw_data = data
         @screen_width = screen_width
@@ -30,32 +32,6 @@ class Scatterplot
         @transformed_data = produce_array_of_coordinates(@x_values, @y_values)
         
     end
-  
-# def single_argument_specified?()
-#     if ARGV.length == 1
-#         return true
-#     end
-#     return false
-# end
-
-# def file_is_CSV?()
-#     if ARGV[0].match(/\w+\.csv/)
-#         return true
-#     end
-#     return false
-# end
-
-# def main()
-
-#     if single_argument_specified?() && file_is_CSV?()
-#         filename = ARGV[0].scan(/\w+\.csv/)[0]
-#     else
-#         puts "Usage: ruby termino-visual.rb [*.csv]"
-
-# end
-
-
-
 
     def produce_array_of_coordinates(variable_arr1, variable_arr2)
     # This method takes in two arrays
@@ -92,7 +68,7 @@ class Scatterplot
 
         # Find the ratio between the range of the variable spread and the user's screen
         var_range = array.max - array.min
-        range_to_screen_ratio = var_range / screen_dimension
+        range_to_screen_ratio = screen_dimension / var_range
 
         # Expand variable values according to this ratio
         array = array.map do |variable_value|
@@ -129,19 +105,6 @@ def main()
     csv_text = File.read(filename)
     csv_data = CSV.parse(csv_text)
 end
-
-def create_xy_coordinate(x_array, y_array, index)
-    new_coordinate = []
-    x_coordinate = x_array.slice(index)
-    y_coordinate = y_array.slice(index)
-    new_coordinate << x_coordinate.to_i
-    new_coordinate << y_coordinate.to_i
-    return new_coordinate
-end
-
-test_array_of_xy_coordinates = create_array_of_xy_coordinates(months_array, temp_array)
-
-# p create_array_of_xy_coordinates(months_array, temp_array)
 
 
 class Visualiser
@@ -190,12 +153,10 @@ class Visualiser
         draw_x_axis(screen_width, y_midpoint)
         draw_y_axis(screen_height, x_midpoint)
 
-        @array_of_observations.each do |array|
-            array.each do |observation|
-                draw_single_observation(observation)
-            end
+        @array_of_observations.each do |observation|
+            draw_single_observation(observation)
         end
-
+    
         Curses.refresh
         Curses.getch
         Curses.close_screen
@@ -213,15 +174,19 @@ class Visualiser
 
 end
 
-vistest = Visualiser.new(test_array_of_xy_coordinates)
+csv_file = File.open("./BOMWeatherData.csv")
+weather_data = CSV.parse(csv_file)
+
+Curses.init_screen
+screen_height = Curses.lines
+screen_width = Curses.cols
+Curses.close_screen
+
+scatter = Scatterplot.new(weather_data, screen_width, screen_height)
+scatter_data = scatter.transformed_data
+
+vistest = Visualiser.new(scatter_data)
 p vistest.array_of_observations
 vistest.draw_scatterplot
 
-
-
-
-
-
-
-
-main()
+# main()
