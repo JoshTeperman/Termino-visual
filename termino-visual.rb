@@ -67,8 +67,7 @@ class Scatterplot
         array = convert_all_values_to_floats(array)
 
         # Find the ratio between the range of the variable spread and the user's screen
-        var_range = array.max - array.min
-        range_to_screen_ratio = screen_dimension / var_range
+        range_to_screen_ratio = screen_dimension / var_range.max
 
         # Expand variable values according to this ratio
         array = array.map do |variable_value|
