@@ -4,6 +4,7 @@ require 'curses'
 require 'descriptive_statistics'
 
 def single_argument_specified?()
+# Checks if there is a single argument passed at CL
     if ARGV.length == 1
         return true
     end
@@ -11,6 +12,7 @@ def single_argument_specified?()
 end
 
 def file_is_CSV?()
+# Checks if the first argument passed at CL is "*.csv"
     if ARGV[0].match(/\w+\.csv/)
         return true
     end
@@ -18,11 +20,19 @@ def file_is_CSV?()
 end
 
 def main()
-
+    # Check if a single .csv file is passed as single argument
+    # If so save it as a filename, else show user correct usage
     if single_argument_specified?() && file_is_CSV?()
         filename = ARGV[0].scan(/\w+\.csv/)[0]
     else
-        puts "Usage: ruby termino-visual.rb [*.csv]"
+        puts "Usage: 'ruby termino-visual.rb *.csv'"
+        abort
+    end
+
+    if !File.exist?(filename)
+        puts "That file does not exist at the specified path. Please check for spelling errors."
+        abort
+    end
 
 end
 
