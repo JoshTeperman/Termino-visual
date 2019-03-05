@@ -20,25 +20,28 @@ def file_is_CSV?()
 end
 
 class Scatterplot
-    def initialize(data)
+    def initialize(data, screen_width, screen_height)
         @raw_data = data
+        @screen_width = screen_width
+        @screen_height = screen_height
         @x_values = get_dimension_values(0)
         @y_values = get_dimension_values(1)
+        @transformed_data = produce_array_of_coordinates
     end
 
-    def transform_data()
-    # This method takes the raw data from the CSV and populates 
-    # an array with many arrays composed of an X and a Y value.
+    def produce_array_of_coordinates(variable_arr1, variable_arr2)
+    # This method takes in two arrays
+    # It outputs an array with many two-index arrays composed of an X and a Y value.
     # These correspond to single observations to be plotted.
-
+        return variable_arr1.zip(variable_arr2)
     end
 
-    def get_dimension_values(dimension)
-        dimension_values_array = []
+    def get_variable_values(variable)
+        variable_array = []
         @raw_data.each do |row|
-            dimension_values_array << row[dimension]
+            variable_array << row[dimension]
         end
-        return dimension_values_array
+        return variable_array
     end
 
     def convert_all_values_to_floats()
@@ -84,31 +87,6 @@ end
 
 main()
 
-csv_text = File.read("BOMWeatherData.csv")
-weather_csv = CSV.parse(csv_text, :headers => true)
-# GET Data-point A (months):
-def get_months(csv_data)
-    array_of_results = []
-    csv_data.each do |row|
-        data_set = row.to_hash
-        array_of_results << row['Month']
-    end
-    return array_of_results
-end
-
-months_array = get_months(weather_csv)
-# p months_array
-# p months.length #421 months
-
-# GET Data-point B (temperature):
-def get_temperature(csv_data)
-    array_of_results = []
-    csv_data.each do |row|
-        data_set = row.to_hash
-        array_of_results << row['Mean maximum temperature']
-    end
-    return array_of_results
-end
 
 temp_array = get_temperature(weather_csv)
 
