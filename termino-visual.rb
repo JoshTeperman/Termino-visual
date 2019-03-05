@@ -113,6 +113,8 @@ class Visualiser
 
     def initialize(array_of_observations)
         @array_of_observations = array_of_observations
+        @screen_height = Curses.lines
+        @screen_width = Curses.cols
     end
 
     def draw_x_axis(screen_width, y_midpoint)
@@ -142,15 +144,13 @@ class Visualiser
         #Output -> iterate through array_of_observations and print each one to screen using draw_single_observation method
 
         Curses.init_screen #initialises curses library 
-        screen_height = Curses.lines #retreive number of lines (height) of user screen 'stdscr'
-        screen_width = Curses.cols ##retreive number of columns (width) of user screen 'stdscr' 
         x_midpoint = Curses.cols / 2 # save coordinate of midpoint of x axis
         y_midpoint = Curses.lines / 2 # save coordinate of midpoint of y axis
 
         Curses.curs_set(0) # Make cursor invisible.
 
-        draw_x_axis(screen_width, y_midpoint)
-        draw_y_axis(screen_height, x_midpoint)
+        draw_x_axis(@screen_width, @screen_height - 1)
+        draw_y_axis(@screen_height, 0)
 
         @array_of_observations.each do |observation|
             draw_single_observation(observation)
@@ -166,8 +166,8 @@ class Visualiser
         #Output -> use curse methods to print coordinate to screen
         x_coordinate = array_of_coordinate_pair[0]
         y_coordinate = array_of_coordinate_pair[1]
-        Curses.setpos(y_coordinate, x_coordinate)
-        Curses.addch("*")
+        Curses.setpos(@screen_height - y_coordinate, @screen_width - x_coordinate)
+        Curses.addch("*")   
     end
 
 
