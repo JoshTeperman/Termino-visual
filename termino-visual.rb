@@ -29,11 +29,15 @@ def main()
         abort
     end
 
+    # If the file cannot be found then alert the user to check for spelling
     if !File.exist?(filename)
         puts "That file does not exist at the specified path. Please check for spelling errors."
         abort
     end
 
+    # Take the file specified by the user and give it to the Scatterplot
+    csv_text = File.read(filename)
+    csv_data = CSV.parse(csv_text)
 end
 
 csv_text = File.read("BOMWeatherData.csv")
