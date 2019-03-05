@@ -19,6 +19,13 @@ def file_is_CSV?()
     return false
 end
 
+def is_file_formatted_correctly?(csv_data)
+# checks is the CSV file is formatted to 2 columns only
+    csv_data.each do |row|
+        return row.length == 2
+    end
+end
+
 class Scatterplot
 
     attr_reader :transformed_data
@@ -97,6 +104,12 @@ def main()
     # Take the file specified by the user and give it to the Scatterplot
     csv_text = File.read(filename)
     csv_data = CSV.parse(csv_text)
+
+    if !is_file_formatted_correctly?(csv_data)
+        puts "File not formatted correctly. Termino v0.1 only supports CSV files formatted to 2 columns."
+        abort
+    end
+
 
     Curses.init_screen
     screen_height = Curses.lines
@@ -179,3 +192,8 @@ class Visualiser
 end
 
 main()
+
+
+csv_text = File.read("BOMWeatherData.csv")
+csv_data = CSV.parse(csv_text)
+p csv_data
