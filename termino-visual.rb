@@ -100,15 +100,20 @@ def main()
         abort
     end
 
-    Curses.init_screen # Check user's screen and establishes constant height and widths of entire terminal
-    screen_height = Curses.lines
-    screen_width = Curses.cols
-    
-    Curses.curs_set(0) # Make cursor invisible
-
     # Take the file specified by the user and give it to the Scatterplot
     csv_text = File.read(filename)
     csv_data = CSV.parse(csv_text)
+
+    Curses.init_screen
+    screen_height = Curses.lines
+    screen_width = Curses.cols
+    Curses.close_screen
+
+    scatter = Scatterplot.new(csv_data, screen_width, screen_height)
+    scatter_data = scatter.transformed_data
+
+    drawn_graph = Visualiser.new(scatter_data)
+    drawn_graph.draw_scatterplot
 end
 
 
@@ -177,19 +182,4 @@ class Visualiser
     end
 end
 
-csv_file = File.open("./BOMWeatherData.csv")
-weather_data = CSV.parse(csv_file)
-
-Curses.init_screen
-screen_height = Curses.lines
-screen_width = Curses.cols
-Curses.close_screen
-
-scatter = Scatterplot.new(weather_data, screen_width, screen_height)
-scatter_data = scatter.transformed_data
-
-vistest = Visualiser.new(scatter_data)
-p vistest.array_of_observations
-vistest.draw_scatterplot
-
-# main()
+main()
