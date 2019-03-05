@@ -1,4 +1,3 @@
-
 require 'csv'
 require 'curses'
 require 'descriptive_statistics'
@@ -76,6 +75,13 @@ class Scatterplot
 
         return convert_all_values_to_integers(array)
     end
+
+    def axis_numbers(array)
+    # This function takes an array (x or y variable) and returns an array of 10 numbers that
+    # are evenly spaced and which will be used to display on the screen by the Visualiser
+    array
+
+    end
 end
 
 def main()
@@ -119,7 +125,7 @@ class Visualiser
 
     def draw_x_axis(screen_width, y_midpoint)
         #input -> receives screen width from Curses.init_screen call 
-        #output -> draw x axis to screen
+        #output -> draw spaced numbers to screen
 
         # draw a vertical line from x = 0 to x = stdscr.width, centered on y axis
         screen_width.times do |x_position| 
@@ -130,7 +136,7 @@ class Visualiser
 
     def draw_y_axis(screen_height, x_midpoint)
         #input -> receives screen width from Curses.init_screen call
-        #output -> draw y axis to screen
+        #output -> draw spaced numbers to screen
 
         # draw a vertical line from y = 0 to y = stdscr.height, centered on x axis
         screen_height.times do |y_position|  
@@ -169,8 +175,6 @@ class Visualiser
         Curses.setpos(@screen_height - y_coordinate, @screen_width - x_coordinate)
         Curses.addch("*")   
     end
-
-
 end
 
 csv_file = File.open("./BOMWeatherData.csv")
