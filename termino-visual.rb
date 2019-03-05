@@ -134,7 +134,14 @@ class Visualiser
     def format_filename_for_printing(filename)
         #Input -> *.csv filename 
         #Output -> filname concatenated to a new string with spaces
-        return filename.delete(".csv")
+        formatted_filename = filename.delete(".csv")
+        if formatted_filename.include?("_")
+            split_string = formatted_filename.split("_")
+            return split_string.join(" ")
+        else
+            return formatted_filename
+        end
+        
     end
 
     def draw_file_name_to_screen(formatted_filename, x_midpoint)
