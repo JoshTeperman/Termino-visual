@@ -13,7 +13,7 @@ end
 
 def file_is_CSV?()
 # Checks if the first argument passed at CL is "*.csv"
-    if ARGV[0].match(/\w+\.csv/)
+    if ARGV[0].strip.match(/\w+\.csv$/)
         return true
     end
     return false
@@ -24,13 +24,17 @@ class Scatterplot
         @raw_data = data
         @transformed_data = []
     end
+
+    def scale()
+    end
+
 end
 
 def main()
     # Check if a single .csv file is passed as single argument
     # If so save it as a filename, else show user correct usage
     if single_argument_specified?() && file_is_CSV?()
-        filename = ARGV[0].scan(/\w+\.csv/)[0]
+        filename = ARGV[0].strip
     else
         puts "Usage: 'ruby termino-visual.rb *.csv'"
         abort
