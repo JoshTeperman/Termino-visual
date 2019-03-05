@@ -1,4 +1,4 @@
-# TERMINO VISUAL APP: CSV Visualiser for terminal written in Ruby
+    # TERMINO VISUAL APP: CSV Visualiser for terminal written in Ruby
 # Iteration 1: Minimum Viable Product
 
 
