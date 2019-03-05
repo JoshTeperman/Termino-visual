@@ -4,10 +4,26 @@ require 'curses'
 require 'descriptive_statistics'
 
 def single_argument_specified?()
-    unless ARGV.length == 1
-        return false
+    if ARGV.length == 1
+        return true
     end
-    return true
+    return false
+end
+
+def file_is_CSV?()
+    if ARGV[0].match(/\w+\.csv/)
+        return true
+    end
+    return false
+end
+
+def main()
+
+    if single_argument_specified?() && file_is_CSV?()
+        filename = ARGV[0].scan(/\w+\.csv/)[0]
+    else
+        puts "Usage: ruby termino-visual.rb [*.csv]"
+
 end
 
 csv_text = File.read("BOMWeatherData.csv")
