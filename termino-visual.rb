@@ -134,6 +134,9 @@ class Visualiser
 
         Curses.curs_set(0) # Make cursor invisible.
 
+        draw_x_axis(screen_width, y_midpoint)
+        draw_y_axis(screen_height, x_midpoint)
+
         @array_of_observations.each do |array|
             array.each do |observation|
                 draw_single_observation(observation)
