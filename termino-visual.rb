@@ -29,8 +29,8 @@ class Scatterplot
         @screen_height = screen_height
         @x_values = get_variable_values(0)
         @y_values = get_variable_values(1)
-        @x_scale = axis_numbers(@x_values)
-        @y_scale = axis_numbers(@y_values)
+        @x_scale = axis_numbers(@x_values).reverse
+        @y_scale = axis_numbers(@y_values).reverse
         @transformed_data = produce_array_of_coordinates(@x_values, @y_values)
         
     end
@@ -144,7 +144,16 @@ class Visualiser
         increment = (@screen_height / numbers.length).round
         locations_on_axis = (1..numbers.length).map { |number| 0 + (increment * number) } 
         numbers.length.times do |number|
-            Curses.setpos(locations_on_axis[number - 1], @screen_width / 2)
+            Curses.setpos(locations_on_axis[number - 1], 0)
+            Curses.addstr(numbers[number - 1].to_s)
+        end
+    end
+
+    def draw_x_axis_numbers(numbers)
+        increment = (@screen_width / numbers.length).round
+        locations_on_axis = (1..numbers.length).map { |number| 0 + (increment * number) }
+        numbers.length.times do |number|
+            Curses.setpos(@screen_height - 5, locations_on_axis[number - 1])
             Curses.addstr(numbers[number - 1].to_s)
         end
     end
@@ -184,12 +193,15 @@ class Visualiser
         draw_x_axis(@screen_width, @screen_height - 1)
         # draw_y_axis(@screen_height, 0)
 
-        draw_y_axis_numbers(@y_scale)
 
         @array_of_observations.each do |observation|
             draw_single_observation(observation)
         end
     
+        draw_y_axis_numbers(@y_scale)
+        months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
+        draw_x_axis_numbers(months)
+        
         Curses.refresh
         Curses.getch
         Curses.close_screen
@@ -200,8 +212,8 @@ class Visualiser
         #Output -> use curse methods to print coordinate to screen
         x_coordinate = array_of_coordinate_pair[0]
         y_coordinate = array_of_coordinate_pair[1]
-        Curses.setpos(@screen_height - y_coordinate, @screen_width - x_coordinate)
-        Curses.addch("*")   
+        Curses.setpos(@screen_height - y_coordinate, x_coordinate)
+        Curses.addch("*")
     end
 end
 
