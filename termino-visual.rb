@@ -134,12 +134,7 @@ class Visualiser
     def format_filename_for_printing(filename)
         #Input -> *.csv filename 
         #Output -> filname concatenated to a new string with spaces
-        filename_with_csv_removed = filename.delete(".csv")
-        if filename_with_csv_removed.include?("_")
-            split_string = csv_removed.split("_")
-            split_string.join(" ")
-        end
-        return split_string
+        return filename.delete(".csv")
     end
 
     def draw_file_name_to_screen(formatted_filename, x_midpoint)
@@ -147,7 +142,7 @@ class Visualiser
         #Output -> Curses draw commands
         x_coordinate = x_midpoint - (formatted_filename.length / 2)
         Curses.setpos(@screen_height - 3, x_coordinate)
-        Curses.addstr(filename_as_formatted_string)
+        Curses.addstr(formatted_filename)
     end
 end
 
