@@ -27,6 +27,7 @@ class Scatterplot
         @x_values = get_variable_values(0)
         @y_values = get_variable_values(1)
         @transformed_data = produce_array_of_coordinates(@x_values, @y_values)
+        
     end
 
     def produce_array_of_coordinates(variable_arr1, variable_arr2)
