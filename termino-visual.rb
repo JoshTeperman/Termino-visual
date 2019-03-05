@@ -208,13 +208,13 @@ def single_argument_specified?()
         return false
     end
     
-    def file_is_CSV?()
-    # Checks if the first argument passed at CL is "*.csv"
-        if ARGV[0].strip.match(/\w+\.csv$/)
-            return true
-        end
-        return false
+def file_is_CSV?()
+# Checks if the first argument passed at CL is "*.csv"
+    if ARGV[0].strip.match(/\w+\.csv$/)
+        return true
     end
+    return false
+end
 
 def main()
     # Check if a single .csv file is passed as single argument
@@ -255,7 +255,6 @@ def main()
     # binding.pry
     drawn_graph.draw_scatterplot
 end
-
 
 # RUN PROGRAM -->
 
