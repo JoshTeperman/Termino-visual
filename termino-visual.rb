@@ -19,6 +19,13 @@ def file_is_CSV?()
     return false
 end
 
+class Scatterplot
+    def initialize(data)
+        @raw_data = data
+        @transformed_data = []
+    end
+end
+
 def main()
     # Check if a single .csv file is passed as single argument
     # If so save it as a filename, else show user correct usage
