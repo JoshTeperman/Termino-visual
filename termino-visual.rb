@@ -1,7 +1,7 @@
-
 require 'csv'
 require 'curses'
 require 'descriptive_statistics'
+require 'pry'
 
 def single_argument_specified?()
 # Checks if there is a single argument passed at CL
@@ -28,7 +28,7 @@ end
 
 class Scatterplot
 
-    attr_reader :transformed_data
+    attr_reader :transformed_data, :x_scale, :y_scale
 
     def initialize(data, screen_width, screen_height)
         @raw_data = data
@@ -36,6 +36,8 @@ class Scatterplot
         @screen_height = screen_height
         @x_values = get_variable_values(0)
         @y_values = get_variable_values(1)
+        @x_scale = axis_numbers(@x_values).reverse
+        @y_scale = axis_numbers(@y_values).reverse
         @transformed_data = produce_array_of_coordinates(@x_values, @y_values)
         
     end
@@ -83,6 +85,18 @@ class Scatterplot
 
         return convert_all_values_to_integers(array)
     end
+
+    def axis_numbers(array)
+    # This function takes an array (x or y variable) and returns an array of 10 numbers that
+    # are evenly spaced and which will be used to display on the screen by the Visualiser
+        array = convert_all_values_to_integers(array)
+        increment_between_numbers = array.range / 10
+        # This takes the numbers between 1 and 10 and creates an array that takes
+        # each number (1-10), multiplies it to the increment, and adds it to the
+        # minimum value in the array. This gives us the numbers to be displayed
+        # to screen by the Visualizer.
+        return (1..10).map { |item| (array.min + (increment_between_numbers * item)).round }
+    end
 end
 
 def main()
@@ -117,9 +131,11 @@ def main()
     Curses.close_screen
 
     scatter = Scatterplot.new(csv_data, screen_width, screen_height)
+    # binding.pry
     scatter_data = scatter.transformed_data
 
-    drawn_graph = Visualiser.new(scatter_data)
+    drawn_graph = Visualiser.new(scatter_data, [], scatter.y_scale)
+    # binding.pry
     drawn_graph.draw_scatterplot
 end
 
@@ -129,15 +145,35 @@ class Visualiser
 
     attr_reader :array_of_observations
 
-    def initialize(array_of_observations)
+    def initialize(array_of_observations, x_scale=[], y_scale=[])
         @array_of_observations = array_of_observations
         @screen_height = Curses.lines
         @screen_width = Curses.cols
+        @x_scale = x_scale
+        @y_scale = y_scale
+    end
+
+    def draw_y_axis_numbers(numbers)
+        increment = (@screen_height / numbers.length).round
+        locations_on_axis = (1..numbers.length).map { |number| 0 + (increment * number) } 
+        numbers.length.times do |number|
+            Curses.setpos(locations_on_axis[number - 1], 0)
+            Curses.addstr(numbers[number - 1].to_s)
+        end
+    end
+
+    def draw_x_axis_numbers(numbers)
+        increment = (@screen_width / numbers.length).round
+        locations_on_axis = (1..numbers.length).map { |number| 0 + (increment * number) }
+        numbers.length.times do |number|
+            Curses.setpos(@screen_height - 5, locations_on_axis[number - 1])
+            Curses.addstr(numbers[number - 1].to_s)
+        end
     end
 
     def draw_x_axis(screen_width, y_midpoint)
         #input -> receives screen width from Curses.init_screen call 
-        #output -> draw x axis to screen
+        #output -> draw spaced numbers to screen
 
         # draw a vertical line from x = 0 to x = stdscr.width, centered on y axis
         screen_width.times do |x_position| 
@@ -148,7 +184,7 @@ class Visualiser
 
     def draw_y_axis(screen_height, x_midpoint)
         #input -> receives screen width from Curses.init_screen call
-        #output -> draw y axis to screen
+        #output -> draw spaced numbers to screen
 
         # draw a vertical line from y = 0 to y = stdscr.height, centered on x axis
         screen_height.times do |y_position|  
@@ -168,12 +204,17 @@ class Visualiser
         Curses.curs_set(0) # Make cursor invisible.
 
         draw_x_axis(@screen_width, @screen_height - 1)
-        draw_y_axis(@screen_height, 0)
+        # draw_y_axis(@screen_height, 0)
+
 
         @array_of_observations.each do |observation|
             draw_single_observation(observation)
         end
     
+        draw_y_axis_numbers(@y_scale)
+        months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
+        draw_x_axis_numbers(months)
+        
         Curses.refresh
         Curses.getch
         Curses.close_screen
@@ -184,11 +225,9 @@ class Visualiser
         #Output -> use curse methods to print coordinate to screen
         x_coordinate = array_of_coordinate_pair[0]
         y_coordinate = array_of_coordinate_pair[1]
-        Curses.setpos(@screen_height - y_coordinate, @screen_width - x_coordinate)
-        Curses.addch("*")   
+        Curses.setpos(@screen_height - y_coordinate, x_coordinate)
+        Curses.addch("*")
     end
-
-
 end
 
 main()
