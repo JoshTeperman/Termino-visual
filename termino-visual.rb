@@ -22,12 +22,28 @@ end
 class Scatterplot
     def initialize(data)
         @raw_data = data
-        @transformed_data = []
+        @transformed_data = data
     end
 
-    def scale()
+    def convert_CSV_to_array()
+    # This method takes the raw data from the CSV and populates 
+    # an array with many arrays composed of an X and a Y value.
+    # These correspond to single observations to be plotted.
+
     end
 
+    def convert_all_values_to_floats()
+    # This converts all the values in the observations array to floats
+    end
+
+    def convert_all_values_to_integers()
+    # This converts all the values in the observation array to integers
+    end
+
+    def scale_to_user_screen_size()
+    # This scales the dataset to the size of the user screen and makes all
+    # values integers so that they fit on line and column numbers.
+    end
 end
 
 def main()
@@ -45,6 +61,12 @@ def main()
         puts "That file does not exist at the specified path. Please check for spelling errors."
         abort
     end
+
+    Curses.init_screen # Check user's screen and establishes constant height and widths of entire terminal
+    screen_height = Curses.lines
+    screen_width = Curses.cols
+    
+    Curses.curs_set(0) # Make cursor invisible
 
     # Take the file specified by the user and give it to the Scatterplot
     csv_text = File.read(filename)
