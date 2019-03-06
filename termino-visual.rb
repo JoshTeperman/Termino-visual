@@ -212,7 +212,7 @@ def main()
 
     # Check there is only one argument passed at Command Line, and that argument is a CSV file.
     # If true, save argument to variable 'filename'.
-    # Else, return error and show user correct format for starting the program.
+    # Else, return error and show user correct format for starting the program and exit.
     if ARGV.length == 1 && file_is_CSV?()
         filename = ARGV[0].strip()
     else
@@ -220,7 +220,8 @@ def main()
         abort
     end
 
-    # If the file cannot be found then alert the user to check for spelling
+    # Check the file exists at the specified path
+    # If not, return error and suggest the user check for spelling errors and exit.
     if !File.exist?(filename)
         puts "PATH Error: \nThat file does not exist at the specified path. Please check for spelling errors."
         abort
@@ -230,6 +231,9 @@ def main()
     csv_text = File.read(filename)
     csv_data = CSV.parse(csv_text)
 
+    # After CSV file is opened, confirm there are only two columns of data, as Termino only prints scatterplot format.
+    # Future versions of Termino could allow for more columns with different graph types
+    # If columns != 2, return error message and exit. 
     if !is_file_formatted_correctly?(csv_data)
         puts "CSV Format Error: \nFile not formatted correctly. Termino v0.1 only supports CSV files formatted to 2 columns."
         abort
@@ -241,11 +245,9 @@ def main()
     close_screen()
 
     scatter = Scatterplot.new(csv_data, screen_width, screen_height)
-    # binding.pry
     scatter_data = scatter.transformed_data()
 
     drawn_graph = Visualiser.new(filename, scatter_data, [], scatter.y_scale)
-    # binding.pry
     drawn_graph.draw_scatterplot()
 end
 
