@@ -1,9 +1,10 @@
 
-# DEPENDENCIES
+# DEPENDENCIES -->
+
 require 'csv'
 require 'curses'
 require 'descriptive_statistics'
-require 'pry'
+include Curses
 
 # CLASSES --> 
 
@@ -15,9 +16,9 @@ class Scatterplot
         @raw_data = data
         @screen_width = screen_width
         @screen_height = screen_height
-        @x_values = get_variable_values(0)
-        @y_values = get_variable_values(1)
-        @x_scale = axis_numbers(@x_values).reverse
+        @x_values = get_variable_values(0) #what are values? 
+        @y_values = get_variable_values(1) 
+        @x_scale = axis_numbers(@x_values).reverse #what does scale refer to?
         @y_scale = axis_numbers(@y_values).reverse
         @transformed_data = produce_array_of_coordinates(@x_values, @y_values)
     end
@@ -62,7 +63,6 @@ class Scatterplot
         array = array.map do |variable_value|
             variable_value *= range_to_screen_ratio
         end
-
         return convert_all_values_to_integers(array)
     end
 
@@ -80,15 +80,13 @@ class Scatterplot
 end
 
 class Visualiser
-    # include 'Curses'
-
     attr_reader :filename, :array_of_observations
   
     def initialize(filename, array_of_observations, x_scale=[], y_scale=[])
         @filename = filename
         @array_of_observations = array_of_observations
-        @screen_height = Curses.lines
-        @screen_width = Curses.cols
+        @screen_height = lines()
+        @screen_width = cols()
         @x_scale = x_scale
         @y_scale = y_scale
     end
@@ -97,8 +95,8 @@ class Visualiser
         increment = (@screen_height / numbers.length).round
         locations_on_axis = (1..numbers.length).map { |number| 0 + (increment * number) } 
         numbers.length.times do |number|
-            Curses.setpos(locations_on_axis[number - 1], 0)
-            Curses.addstr(numbers[number - 1].to_s)
+            setpos(locations_on_axis[number - 1], 0)
+            addstr(numbers[number - 1].to_s)
         end
     end
 
@@ -106,8 +104,8 @@ class Visualiser
         increment = (@screen_width / numbers.length).round
         locations_on_axis = (1..numbers.length).map { |number| 0 + (increment * number) }
         numbers.length.times do |number|
-            Curses.setpos(@screen_height - 5, locations_on_axis[number - 1])
-            Curses.addstr(numbers[number - 1].to_s)
+            setpos(@screen_height - 5, locations_on_axis[number - 1])
+            addstr(numbers[number - 1].to_s)
         end
     end
 
@@ -117,8 +115,8 @@ class Visualiser
 
         # draw a vertical line from x = 0 to x = stdscr.width, centered on y axis
         screen_width.times do |x_position| 
-            Curses.setpos(y_midpoint, x_position)
-            Curses.addstr("-")
+            setpos(y_midpoint, x_position)
+            addstr("-")
         end
     end
 
@@ -128,8 +126,8 @@ class Visualiser
 
         # draw a vertical line from y = 0 to y = stdscr.height, centered on x axis
         screen_height.times do |y_position|  
-            Curses.setpos(y_position, x_midpoint)
-            Curses.addstr("|")
+            setpos(y_position, x_midpoint)
+            addstr("|")
         end
     end
 
@@ -137,11 +135,10 @@ class Visualiser
         #Input -> array of obersvations
         #Output -> iterate through array_of_observations and print each one to screen using draw_single_observation method
 
-        Curses.init_screen #initialises curses library 
-        x_midpoint = Curses.cols / 2 # save coordinate of midpoint of x axis
-        y_midpoint = Curses.lines / 2 # save coordinate of midpoint of y axis
+        x_midpoint = cols() / 2 # save coordinate of midpoint of x axis
+        y_midpoint = lines() / 2 # save coordinate of midpoint of y axis
 
-        Curses.curs_set(0) # Make cursor invisible.
+        curs_set(0) # Make cursor invisible.
 
         draw_x_axis(@screen_width, @screen_height - 1)
         draw_y_axis(@screen_height, 0)
@@ -154,10 +151,6 @@ class Visualiser
         draw_y_axis_numbers(@y_scale)
         months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
         draw_x_axis_numbers(months)
-        
-        Curses.refresh
-        Curses.getch
-        Curses.close_screen
     end
 
     def draw_single_observation(array_of_coordinate_pair)
@@ -165,8 +158,8 @@ class Visualiser
         #Output -> use curse methods to print coordinate to screen
         x_coordinate = array_of_coordinate_pair[0]
         y_coordinate = array_of_coordinate_pair[1]
-        Curses.setpos(@screen_height - y_coordinate, x_coordinate)
-        Curses.addch("*")
+        setpos(@screen_height - y_coordinate, x_coordinate)
+        addch("*")   
     end
 
     def format_filename_for_printing(filename)
@@ -179,15 +172,14 @@ class Visualiser
         else
             return formatted_filename
         end
-        
     end
 
     def draw_file_name_to_screen(formatted_filename, x_midpoint)
         #Input -> Formatted filename ready for printing
         #Output -> Curses draw commands
         x_coordinate = x_midpoint - (formatted_filename.length / 2)
-        Curses.setpos(@screen_height - 3, x_coordinate)
-        Curses.addstr(formatted_filename)
+        setpos(@screen_height - 3, x_coordinate)
+        addstr(formatted_filename)
     end
 end
 
@@ -199,14 +191,6 @@ def is_file_formatted_correctly?(csv_data)
         return row.length == 2
     end
 end
-
-def single_argument_specified?()
-    # Checks if there is a single argument passed at CL
-        if ARGV.length == 1
-            return true
-        end
-        return false
-    end
     
 def file_is_CSV?()
 # Checks if the first argument passed at CL is "*.csv"
@@ -216,19 +200,24 @@ def file_is_CSV?()
     return false
 end
 
+# main() is called to run the program:
 def main()
-    # Check if a single .csv file is passed as single argument
-    # If so save it as a filename, else show user correct usage
-    if single_argument_specified?() && file_is_CSV?()
-        filename = ARGV[0].strip
+    ## Section 1: INPUT & HANDLING -->
+
+    # Check there is only one argument passed at Command Line, and that argument is a CSV file.
+    # If true, save argument to variable 'filename'.
+    # Else, return error and show user correct format for starting the program and exit.
+    if ARGV.length == 1 && file_is_CSV?()
+        filename = ARGV[0].strip()
     else
-        puts "Usage: 'ruby termino-visual.rb *.csv'"
+        puts "Input Error: \nCorrect format to use Termino: 'ruby termino-visual.rb *.csv', where * == filename"
         abort
     end
 
-    # If the file cannot be found then alert the user to check for spelling
+    # Check the file exists at the specified path
+    # If not, return error and suggest the user check for spelling errors and exit.
     if !File.exist?(filename)
-        puts "That file does not exist at the specified path. Please check for spelling errors."
+        puts "PATH Error: \nThat file does not exist at the specified path. Please check for spelling errors."
         abort
     end
 
@@ -236,24 +225,38 @@ def main()
     csv_text = File.read(filename)
     csv_data = CSV.parse(csv_text)
 
+    # After CSV file is opened, confirm there are only two columns of data, as Termino only prints scatterplot format.
+    # Future versions of Termino could allow for more columns with different graph types
+    # If columns != 2, return error message and exit. 
     if !is_file_formatted_correctly?(csv_data)
-        puts "File not formatted correctly. Termino v0.1 only supports CSV files formatted to 2 columns."
+        puts "CSV Format Error: \nFile not formatted correctly. Termino v0.1 only supports CSV files formatted to 2 columns."
         abort
     end
 
+    ## Section 2: CREATE SCATTERPLOT -->
 
-    Curses.init_screen
-    screen_height = Curses.lines
-    screen_width = Curses.cols
-    Curses.close_screen
+    # Initialise the Curses Module, which takes a snapshot of user Terminal screen and saves height and width
+    init_screen()
+    screen_height = lines()
+    screen_width = cols()
 
+    # Initialise instance of Scatterplot class
     scatter = Scatterplot.new(csv_data, screen_width, screen_height)
-    # binding.pry
+    # Transform CSV data and save coordinates in variable scatter_data, ready for printing to screen
     scatter_data = scatter.transformed_data
 
-    drawn_graph = Visualiser.new(filename, scatter_data, [], scatter.y_scale)
-    # binding.pry
-    drawn_graph.draw_scatterplot
+    ## Section 3: VISUALISE SCATTERPLOT ON TERMINAL -->
+
+    # Initialise instance of Visualiser class with data to be printed to screen
+    # Note - x_scale in this case is left as an empty array because we are using month-names rather than integers
+    new_visualisation = Visualiser.new(filename, scatter_data, [], scatter.y_scale)
+    # Call method to draw scatterplot to screen
+    new_visualisation.draw_scatterplot()
+
+    # Curses methods to refresh screen, get characters. Close screen is called on any keypress.
+    refresh()
+    getch()
+    close_screen()
 end
 
 # RUN PROGRAM -->
