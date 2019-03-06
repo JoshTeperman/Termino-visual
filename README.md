@@ -24,6 +24,10 @@ We wanted to create an application to visualise data in the terminal. In the ear
 
 ![just_begun](./docs/justbegun.png)
 
+We were using Slack to stay in touch, debug issues and share ideas on how to improve our code.
+
+![working_on_slack](.docs/slack.png)
+
 ### Planning program structure
 We thought it made most sense to write the program to incorporate three distinct components or stages of processing. These would involve:
 1. Accepting and parsing a .csv file as an argument at command line, while handling potential errors.
