@@ -16,27 +16,29 @@ class Scatterplot
         @raw_data = data
         @screen_width = screen_width
         @screen_height = screen_height
-        @x_values = get_variable_values(0) #what are values? 
-        @y_values = get_variable_values(1) 
-        @x_scale = axis_numbers(@x_values).reverse #what does scale refer to?
-        @y_scale = axis_numbers(@y_values).reverse
+        @x_values = get_variable_values(0) #value of x-axis coordinates
+        @y_values = get_variable_values(1) #value of y-axis coordinates
+        @x_scale = axis_numbers(@x_values).reverse #values of scale printed on x-axis
+        @y_scale = axis_numbers(@y_values).reverse #values of scale printed on y-axis
         @transformed_data = produce_array_of_coordinates(@x_values, @y_values)
     end
 
-    def produce_array_of_coordinates(variable_arr1, variable_arr2)
-    # This method takes in two arrays, each of a particular data set (temperature, month etc)
-    # It outputs an array with many two-index arrays composed of an X and a Y value.
-    # These correspond to single observations to be plotted.
-        variable_arr1 = scale_to_user_screen_size(variable_arr1, @screen_width)
-        variable_arr2 = scale_to_user_screen_size(variable_arr2, @screen_height)
-        return variable_arr1.zip(variable_arr2)
+    def produce_array_of_coordinates(variables_array_1, variables_array_2)
+    # Input --> Two arrays, each containing values of a particular data set (temperature, month etc)
+    # Output -->  An array with many two-index arrays composed of an x and a y value.
+    # These correspond to single observations to be plotted later.
+        variables_array_1 = scale_to_user_screen_size(variables_array_1, @screen_width)
+        variables_array_2 = scale_to_user_screen_size(variables_array_2, @screen_height)
+        return variables_array_1.zip(variables_array_2)
     end
 
-    def get_variable_values(variable)
-    # Takes an index to extract either 0th, 1st, column from raw_data
+    def get_variable_values(index)
+    # Input --> Iterates through the raw_data (CSV file) 
+    # Output --> Returns an array of variables at selected by index
+    # Each variable will form either the x or y axis coordinate for the scatterplot
         variable_array = []
         @raw_data.each do |row|
-            variable_array << row[variable]
+            variable_array << row[index]
         end
         return variable_array
     end
@@ -52,8 +54,9 @@ class Scatterplot
     end
 
     def scale_to_user_screen_size(array, screen_dimension)
-    # This scales an array of variable values to the size of the user screen and makes all
-    # values integers so that they fit on line and column numbers.
+    # Input --> An array of variable values 
+    # Output --> transformed array scaled to the size of the user screen in integers format 
+    # so that they fit on line and column numbers.
         array = convert_all_values_to_floats(array)
 
         # Find the ratio between the range of the variable spread and the user's screen
@@ -67,8 +70,8 @@ class Scatterplot
     end
 
     def axis_numbers(array)
-    # This function takes an array (x or y variable) and returns an array of 10 numbers that
-    # are evenly spaced and which will be used to display on the screen by the Visualiser
+    # Input --> An array (x or y variable)  
+    # Output --> An array of 10 numbers, evenly spaced and which will be used to display on the screen by the Visualiser
         array = convert_all_values_to_integers(array)
         increment_between_numbers = array.range / 10
         # This takes the numbers between 1 and 10 and creates an array that takes
@@ -92,26 +95,32 @@ class Visualiser
     end
 
     def draw_y_axis_numbers(numbers)
+        # Input -> List of numbers to be used for the y-axis key
+        # Output -> Uses Curses to draw the keys on the y-axis 
         increment = (@screen_height / numbers.length).round
         locations_on_axis = (1..numbers.length).map { |number| 0 + (increment * number) } 
         numbers.length.times do |number|
+            # Set cursor coordinate and draw a string to screen
             setpos(locations_on_axis[number - 1], 0)
             addstr(numbers[number - 1].to_s)
         end
     end
 
     def draw_x_axis_numbers(numbers)
+        # Input -> List of numbers to be used for the x-axis key
+        # Output -> Uses Curses to draw the keys on the y-axis 
         increment = (@screen_width / numbers.length).round
         locations_on_axis = (1..numbers.length).map { |number| 0 + (increment * number) }
         numbers.length.times do |number|
+            # Set cursor coordinate and draw a string to screen
             setpos(@screen_height - 5, locations_on_axis[number - 1])
             addstr(numbers[number - 1].to_s)
         end
     end
 
     def draw_x_axis(screen_width, y_midpoint)
-        #input -> receives screen width from Curses.init_screen call 
-        #output -> draw spaced numbers to screen
+        # Input -> receives screen width from Curses.init_screen call 
+        # Output -> draw spaced numbers to screen
 
         # draw a vertical line from x = 0 to x = stdscr.width, centered on y axis
         screen_width.times do |x_position| 
@@ -121,8 +130,8 @@ class Visualiser
     end
 
     def draw_y_axis(screen_height, x_midpoint)
-        #input -> receives screen width from Curses.init_screen call
-        #output -> draw spaced numbers to screen
+        # Input -> receives screen width from Curses.init_screen call
+        # Output -> draw spaced numbers to screen
 
         # draw a vertical line from y = 0 to y = stdscr.height, centered on x axis
         screen_height.times do |y_position|  
@@ -132,8 +141,8 @@ class Visualiser
     end
 
     def draw_scatterplot()
-        #Input -> array of obersvations
-        #Output -> iterate through array_of_observations and print each one to screen using draw_single_observation method
+        # Input -> array of observations
+        # Output -> iterate through array_of_observations and print each one to screen using draw_single_observation method
 
         x_midpoint = cols() / 2 # save coordinate of midpoint of x axis
         y_midpoint = lines() / 2 # save coordinate of midpoint of y axis
@@ -149,13 +158,14 @@ class Visualiser
         end
     
         draw_y_axis_numbers(@y_scale)
+        # In this case our x-axis values are months, so we have specificed the months directly below:
         months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
         draw_x_axis_numbers(months)
     end
 
     def draw_single_observation(array_of_coordinate_pair)
-        #Input -> single pair of coordinates contained in an array
-        #Output -> use curse methods to print coordinate to screen
+        # Input -> single pair of coordinates contained in an array
+        # Output -> use curse methods to print coordinate to screen
         x_coordinate = array_of_coordinate_pair[0]
         y_coordinate = array_of_coordinate_pair[1]
         setpos(@screen_height - y_coordinate, x_coordinate)
@@ -163,8 +173,8 @@ class Visualiser
     end
 
     def format_filename_for_printing(filename)
-        #Input -> *.csv filename 
-        #Output -> filname concatenated to a new string with spaces
+        # Input -> *.csv filename 
+        # Output -> filname concatenated to a new string with spaces
         formatted_filename = filename.delete(".csv")
         if formatted_filename.include?("_")
             split_string = formatted_filename.split("_")
@@ -175,8 +185,8 @@ class Visualiser
     end
 
     def draw_file_name_to_screen(formatted_filename, x_midpoint)
-        #Input -> Formatted filename ready for printing
-        #Output -> Curses draw commands
+        # Input -> Formatted filename ready for printing
+        # Output -> Curses draw commands
         x_coordinate = x_midpoint - (formatted_filename.length / 2)
         setpos(@screen_height - 3, x_coordinate)
         addstr(formatted_filename)
