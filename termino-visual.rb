@@ -197,15 +197,6 @@ def is_file_formatted_correctly?(csv_data)
         return row.length == 2
     end
 end
-
-def single_argument_specified?()
-    # ARGV returns any input to the command line after the filename is called
-    # This method returns true if there is a single argument passed at CL
-        ARGV.length == 1
-            return true
-        end
-        return false
-    end
     
 def file_is_CSV?()
 # Checks if the first argument passed at CL is "*.csv"
@@ -215,21 +206,23 @@ def file_is_CSV?()
     return false
 end
 
+# main() is called to run the program:
 def main()
-    # Error check the command line input when starting the program --> 
+    # Error Handling --> 
 
-    # Check if a single .csv file is passed as single argument
-    # If so save it to variable 'filename', else show user correct format for starting the program.
-    if single_argument_specified?() && file_is_CSV?()
+    # Check there is only one argument passed at Command Line, and that argument is a CSV file.
+    # If true, save argument to variable 'filename'.
+    # Else, return error and show user correct format for starting the program.
+    if ARGV.length == 1 && file_is_CSV?()
         filename = ARGV[0].strip()
     else
-        puts "Usage: 'ruby termino-visual.rb *.csv'"
+        puts "Input Error: \nCorrect format to use Termino: 'ruby termino-visual.rb *.csv', where * == filename"
         abort
     end
 
     # If the file cannot be found then alert the user to check for spelling
     if !File.exist?(filename)
-        puts "That file does not exist at the specified path. Please check for spelling errors."
+        puts "PATH Error: \nThat file does not exist at the specified path. Please check for spelling errors."
         abort
     end
 
@@ -238,7 +231,7 @@ def main()
     csv_data = CSV.parse(csv_text)
 
     if !is_file_formatted_correctly?(csv_data)
-        puts "File not formatted correctly. Termino v0.1 only supports CSV files formatted to 2 columns."
+        puts "CSV Format Error: \nFile not formatted correctly. Termino v0.1 only supports CSV files formatted to 2 columns."
         abort
     end
 
