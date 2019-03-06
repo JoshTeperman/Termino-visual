@@ -251,7 +251,7 @@ def main()
     # binding.pry
     scatter_data = scatter.transformed_data
 
-    drawn_graph = Visualiser.new(scatter_data, [], scatter.y_scale)
+    drawn_graph = Visualiser.new(filename, scatter_data, [], scatter.y_scale)
     # binding.pry
     drawn_graph.draw_scatterplot
 end
