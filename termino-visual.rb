@@ -16,9 +16,9 @@ class Scatterplot
         @raw_data = data
         @screen_width = screen_width
         @screen_height = screen_height
-        @x_values = get_variable_values(0)
-        @y_values = get_variable_values(1)
-        @x_scale = axis_numbers(@x_values).reverse
+        @x_values = get_variable_values(0) #what are values? 
+        @y_values = get_variable_values(1) 
+        @x_scale = axis_numbers(@x_values).reverse #what does scale refer to?
         @y_scale = axis_numbers(@y_values).reverse
         @transformed_data = produce_array_of_coordinates(@x_values, @y_values)
     end
@@ -135,7 +135,6 @@ class Visualiser
         #Input -> array of obersvations
         #Output -> iterate through array_of_observations and print each one to screen using draw_single_observation method
 
-        init_screen() #initialises curses library 
         x_midpoint = cols() / 2 # save coordinate of midpoint of x axis
         y_midpoint = lines() / 2 # save coordinate of midpoint of y axis
 
@@ -152,10 +151,6 @@ class Visualiser
         draw_y_axis_numbers(@y_scale)
         months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
         draw_x_axis_numbers(months)
-        
-        refresh()
-        getch()
-        close_screen()
     end
 
     def draw_single_observation(array_of_coordinate_pair)
@@ -177,7 +172,6 @@ class Visualiser
         else
             return formatted_filename
         end
-        
     end
 
     def draw_file_name_to_screen(formatted_filename, x_midpoint)
@@ -208,7 +202,7 @@ end
 
 # main() is called to run the program:
 def main()
-    # Error Handling --> 
+    ## Section 1: INPUT & HANDLING -->
 
     # Check there is only one argument passed at Command Line, and that argument is a CSV file.
     # If true, save argument to variable 'filename'.
@@ -239,16 +233,30 @@ def main()
         abort
     end
 
+    ## Section 2: CREATE SCATTERPLOT -->
+
+    # Initialise the Curses Module, which takes a snapshot of user Terminal screen and saves height and width
     init_screen()
     screen_height = lines()
     screen_width = cols()
-    close_screen()
 
+    # Initialise instance of Scatterplot class
     scatter = Scatterplot.new(csv_data, screen_width, screen_height)
-    scatter_data = scatter.transformed_data()
+    # Transform CSV data and save coordinates in variable scatter_data, ready for printing to screen
+    scatter_data = scatter.transformed_data
 
-    drawn_graph = Visualiser.new(filename, scatter_data, [], scatter.y_scale)
-    drawn_graph.draw_scatterplot()
+    ## Section 3: VISUALISE SCATTERPLOT ON TERMINAL -->
+
+    # Initialise instance of Visualiser class with data to be printed to screen
+    # Note - x_scale in this case is left as an empty array because we are using month-names rather than integers
+    new_visualisation = Visualiser.new(filename, scatter_data, [], scatter.y_scale)
+    # Call method to draw scatterplot to screen
+    new_visualisation.draw_scatterplot()
+
+    # Curses methods to refresh screen, get characters. Close screen is called on any keypress.
+    refresh()
+    getch()
+    close_screen()
 end
 
 # RUN PROGRAM -->
