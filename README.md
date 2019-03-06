@@ -9,8 +9,10 @@ For usage of Termino-Visual, the following gemfiles must be installed on your sy
 * [Descriptive Statistics](https://github.com/ruby/curses)
 
 ## Usage
-When Termino-Visual is installed, navigate to the correct folder and run it by typing
-`ruby termino-visual.rb` followed by the name of your .csv file. This will generate a scatterplot with x and y axes and a title that is inferred from the filename. Following these steps for the sample datasets that we include in our repo yields the following result:
+Termino-Visual is written in Ruby 2.5.1 and therefore requires the Ruby interpreter to be installed on your machine. Instructions on how to do this can be found [here](https://www.ruby-lang.org/en/documentation/installation/).
+
+When both Ruby and Termino-Visual is installed, navigate to the correct folder and run it by typing
+`ruby termino-visual.rb` followed by the name of your .csv file. This will generate a scatterplot with labelled x and y axes and a title that is inferred from the filename. Following these steps for the sample datasets that we include in our repo yields the following results:
 
 ![bundoora](./docs/bundoora.png)
 ![NT](./docs/nt.png)
@@ -66,7 +68,7 @@ We adopted a manual and ad-hoc testing process. As methods and classes were comp
 
 ## Known issues
 We suspect that both of the issues below have to do with eccentricities associated with the Curses gem, and we are looking into alternatives for rendering to screen that are "native" to Ruby.
-* Regionalisation: currently, there is an issue correctly rendering negative temperatures, which may result in problems for users in parts of the northern hemisphere or extreme southern hemisphere.
+* Regionalisation: currently, there is an issue correctly rendering negative temperatures, which may result in problems for users in parts of the northern hemisphere or extreme southern hemisphere. We have included the Antarctica dataset so that this bug can be reproduced easily.
 
 ![antarctica_plot](./docs/AntarcticaScreenshot.png)
 
