@@ -34,7 +34,7 @@ class Scatterplot
   end
   
   def convert_all_values_to_integers(array)
-    return array.map {&:to_i}
+    return array.map(&:to_i)
   end
   
   def scale_to_user_screen_size(array, screen_dimension)
