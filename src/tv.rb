@@ -31,11 +31,11 @@ class Scatterplot
     end
 
     def convert_all_values_to_floats(array)
-        return array.map { |value| value.to_f }
+        return array.map(&:to_f)
     end
 
     def convert_all_values_to_integers(array)
-        return array.map { |value| value.to_i }
+        return array.map {&:to_i}
     end
 
     def scale_to_user_screen_size(array, screen_dimension)
