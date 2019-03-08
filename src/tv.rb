@@ -190,17 +190,13 @@ class Visualiser
     end
 end
 
-# HELPER METHODS -->
-
 def is_file_formatted_correctly?(csv_data)
-# checks is the CSV file is formatted to 2 columns only
     csv_data.each do |row|
         return row.length == 2
     end
 end
     
 def file_is_CSV?()
-# Checks if the first argument passed at CL is "*.csv"
     if ARGV[0].strip.match(/\w+\.csv$/)
         return true
     end
@@ -209,11 +205,7 @@ end
 
 # main() is called to run the program:
 def main()
-    ## Section 1: INPUT & HANDLING -->
 
-    # Check there is only one argument passed at Command Line, and that argument is a CSV file.
-    # If true, save argument to variable 'filename'.
-    # Else, return error and show user correct format for starting the program and exit.
     if ARGV.length == 1 && file_is_CSV?()
         filename = ARGV[0].strip()
     else
@@ -221,51 +213,32 @@ def main()
         abort
     end
 
-    # Check the file exists at the specified path
-    # If not, return error and suggest the user check for spelling errors and exit.
     if !File.exist?(filename)
         puts "That file does not exist at the specified path. Please check spelling."
         abort
     end
 
-    # Take the file specified by the user and give it to the Scatterplot
     csv_text = File.read(filename)
     csv_data = CSV.parse(csv_text)
 
-    # After CSV file is opened, confirm there are only two columns of data, as Termino only prints scatterplot format.
-    # Future versions of Termino could allow for more columns with different graph types
-    # If columns != 2, return error message and exit. 
     if !is_file_formatted_correctly?(csv_data)
         puts "Formatting error (more than two columns in csv)"
         abort
     end
 
-    ## Section 2: CREATE SCATTERPLOT -->
-
-    # Initialise the Curses Module, which takes a snapshot of user Terminal screen and saves height and width
     init_screen()
     screen_height = lines()
     screen_width = cols()
 
-    # Initialise instance of Scatterplot class
     scatter = Scatterplot.new(csv_data, screen_width, screen_height)
-    # Transform CSV data and save coordinates in variable scatter_data, ready for printing to screen
     scatter_data = scatter.transformed_data
 
-    ## Section 3: VISUALISE SCATTERPLOT ON TERMINAL -->
-
-    # Initialise instance of Visualiser class with data to be printed to screen
-    # Note - x_scale in this case is left as an empty array because we are using month-names rather than integers
     new_visualisation = Visualiser.new(filename, scatter_data, [], scatter.y_scale)
-    # Call method to draw scatterplot to screen
     new_visualisation.draw_scatterplot()
 
-    # Curses methods to refresh screen, get characters. Close screen is called on any keypress.
     refresh()
     getch()
     close_screen()
 end
-
-# RUN PROGRAM -->
 
 main()
