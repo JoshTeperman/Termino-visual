@@ -1,6 +1,5 @@
 require 'csv'
 require 'curses'
-require 'descriptive_statistics'
 
 class Scatterplot
     attr_reader :transformed_data, :x_scale, :y_scale
