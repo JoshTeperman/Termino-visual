@@ -1,18 +1,14 @@
 require 'csv'
 require 'curses'
 require 'descriptive_statistics'
-include Curses
-
-# CLASSES --> 
 
 class Scatterplot
-
     attr_reader :transformed_data, :x_scale, :y_scale
 
-    def initialize(data, screen_width, screen_height)
+    def initialize(data)
         @raw_data = data
-        @screen_width = screen_width
-        @screen_height = screen_height
+        @screen_width = get_dimensions[0]
+        @screen_height = get_dimensions[1]
         @x_values = get_variable_values(0) #value of x-axis coordinates
         @y_values = get_variable_values(1) #value of y-axis coordinates
         @x_scale = axis_numbers(@x_values).reverse #values of scale printed on x-axis
@@ -21,18 +17,12 @@ class Scatterplot
     end
 
     def produce_array_of_coordinates(variables_array_1, variables_array_2)
-    # Input --> Two arrays, each containing values of a particular data set (temperature, month etc)
-    # Output -->  An array with many two-index arrays composed of an x and a y value.
-    # These correspond to single observations to be plotted later.
         variables_array_1 = scale_to_user_screen_size(variables_array_1, @screen_width)
         variables_array_2 = scale_to_user_screen_size(variables_array_2, @screen_height)
         return variables_array_1.zip(variables_array_2)
     end
 
     def get_variable_values(index)
-    # Input --> Iterates through the raw_data (CSV file) 
-    # Output --> Returns an array of variables at selected by index
-    # Each variable will form either the x or y axis coordinate for the scatterplot
         variable_array = []
         @raw_data.each do |row|
             variable_array << row[index]
@@ -41,12 +31,10 @@ class Scatterplot
     end
 
     def convert_all_values_to_floats(array)
-    # Converts all values in an array to floats
         return array.map { |value| value.to_f }
     end
 
     def convert_all_values_to_integers(array)
-    # Converts all values in an array to integers
         return array.map { |value| value.to_i }
     end
 
@@ -81,6 +69,7 @@ end
 
 class Visualiser
     attr_reader :filename, :array_of_observations
+    include Curses
   
     def initialize(filename, array_of_observations, x_scale=[], y_scale=[])
         @filename = filename
@@ -190,6 +179,14 @@ class Visualiser
     end
 end
 
+def get_dimensions
+  Curses.init_screen
+  width = Curses.cols
+  height = Curses.lines
+  Curses.close_screen
+  return [width, height]
+end
+
 def is_file_formatted_correctly?(csv_data)
     csv_data.each do |row|
         return row.length == 2
@@ -203,7 +200,6 @@ def file_is_CSV?()
     return false
 end
 
-# main() is called to run the program:
 def main()
 
     if ARGV.length == 1 && file_is_CSV?()
