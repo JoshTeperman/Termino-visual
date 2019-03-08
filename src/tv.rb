@@ -1,6 +1,3 @@
-
-# DEPENDENCIES -->
-
 require 'csv'
 require 'curses'
 require 'descriptive_statistics'
@@ -220,14 +217,14 @@ def main()
     if ARGV.length == 1 && file_is_CSV?()
         filename = ARGV[0].strip()
     else
-        puts "Input Error: \nCorrect format to use Termino: 'ruby termino-visual.rb *.csv', where * == filename"
+        puts "Usage: ruby tv.rb *.csv"
         abort
     end
 
     # Check the file exists at the specified path
     # If not, return error and suggest the user check for spelling errors and exit.
     if !File.exist?(filename)
-        puts "PATH Error: \nThat file does not exist at the specified path. Please check for spelling errors."
+        puts "That file does not exist at the specified path. Please check spelling."
         abort
     end
 
@@ -239,7 +236,7 @@ def main()
     # Future versions of Termino could allow for more columns with different graph types
     # If columns != 2, return error message and exit. 
     if !is_file_formatted_correctly?(csv_data)
-        puts "CSV Format Error: \nFile not formatted correctly. Termino v0.1 only supports CSV files formatted to 2 columns."
+        puts "Formatting error (more than two columns in csv)"
         abort
     end
 
