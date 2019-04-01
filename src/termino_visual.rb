@@ -6,22 +6,9 @@ require 'descriptive_statistics'
 
 require_relative 'termino_model'
 require_relative 'termino_view'
+require_relative 'error_handler'
 
-def file_formatted_correctly?(csv_data)
-  # checks is the CSV file is formatted to 2 columns only
-  csv_data.each do |row|
-    return row.length == 2
-  end
-end
-
-def file_is_csv?
-  # Checks if the first argument passed at CL is "*.csv"
-  return true if ARGV[0].strip =~ /\w+\.csv$/
-
-  false
-end
-
-if ARGV.length == 1 && file_is_csv?
+if ARGV.length == 1 && Handler.file_is_csv?
   filename = ARGV[0].strip
 else
   puts 'Usage: ruby termino-visual.rb *.csv'
@@ -40,7 +27,7 @@ csv_data = CSV.parse(csv_text)
 
 # After CSV file is opened, confirm there are only two columns of data
 # If columns != 2, return error message and exit.
-unless file_formatted_correctly?(csv_data)
+unless Handler.file_formatted_correctly?(csv_data)
   puts "CSV Format Error: \nFile not formatted correctly."
   abort
 end
