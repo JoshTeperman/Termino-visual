@@ -34,7 +34,6 @@ class Scatterplot
   def get_variable_values(index)
     # Input --> Iterates through the raw_data (CSV file)
     # Output --> Returns an array of variables at selected by index
-    # Each variable will form either the x or y axis coordinate for the scatterplot
     variable_array = []
     @raw_data.each do |row|
       variable_array << row[index]
@@ -44,40 +43,41 @@ class Scatterplot
 
   def convert_all_values_to_floats(array)
     # Converts all values in an array to floats
-    array.map { |value| value.to_f }
+    array.map(&:to_f)
   end
 
   def convert_all_values_to_integers(array)
     # Converts all values in an array to integers
-    array.map { |value| value.to_i }
+    array.map(&:to_i)
   end
 
   def scale_to_user_screen_size(array, screen_dimension)
     # Input --> An array of variable values
-    # Output --> transformed array scaled to the size of the user screen in integers format
+    # Output --> transformed array scaled to the size of the user screen (int)
     # so that they fit on line and column numbers.
     array = convert_all_values_to_floats(array)
 
-    # Find the ratio between the range of the variable spread and the user's screen
+    # Find the ratio between the range of the variable spread and the screen
     range_to_screen_ratio = screen_dimension / array.max
 
     # Expand variable values according to this ratio
     array = array.map do |variable_value|
       variable_value *= range_to_screen_ratio
     end
-    return convert_all_values_to_integers(array)
+    convert_all_values_to_integers(array)
   end
 
   def axis_numbers(array)
     # Input --> An array (x or y variable)
-    # Output --> An array of 10 numbers, evenly spaced and which will be used to display on the screen by the Visualiser
+    # Output --> An array of 10 numbers, evenly spaced and which will be used
+    # to display on the screen by the Visualiser
     array = convert_all_values_to_integers(array)
     increment_between_numbers = array.range / 10
     # This takes the numbers between 1 and 10 and creates an array that takes
     # each number (1-10), multiplies it to the increment, and adds it to the
     # minimum value in the array. This gives us the numbers to be displayed
     # to screen by the Visualizer.
-    return (1..10).map { |item| (array.min + (increment_between_numbers * item)).round }
+    (1..10).map { |item| (array.min + (increment_between_numbers * item)).round }
   end
 end
 
@@ -87,8 +87,8 @@ class Visualiser
   def initialize(filename, array_of_observations, x_scale = [], y_scale = [])
     @filename = filename
     @array_of_observations = array_of_observations
-    @screen_height = lines()
-    @screen_width = cols()
+    @screen_height = lines
+    @screen_width = cols
     @x_scale = x_scale
     @y_scale = y_scale
   end
@@ -124,7 +124,7 @@ class Visualiser
     # draw a vertical line from x = 0 to x = stdscr.width, centered on y axis
     screen_width.times do |x_position|
       setpos(y_midpoint, x_position)
-      addstr("-")
+      addstr('-')
     end
   end
 
@@ -135,16 +135,17 @@ class Visualiser
     # draw a vertical line from y = 0 to y = stdscr.height, centered on x axis
     screen_height.times do |y_position|
       setpos(y_position, x_midpoint)
-      addstr("|")
+      addstr('|')
     end
   end
 
-  def draw_scatterplot()
+  def draw_scatterplot
     # Input -> array of observations
-    # Output -> iterate through array_of_observations and print each one to screen using draw_single_observation method
+    # Output -> iterate through array_of_observations and print
+    # each one to screen using draw_single_observation method
 
-    x_midpoint = cols() / 2 # save coordinate of midpoint of x axis
-    y_midpoint = lines() / 2 # save coordinate of midpoint of y axis
+    x_midpoint = cols / 2 # save coordinate of midpoint of x axis
+    y_midpoint = lines / 2 # save coordinate of midpoint of y axis
 
     curs_set(0) # Make cursor invisible.
 
@@ -157,8 +158,7 @@ class Visualiser
     end
 
     draw_y_axis_numbers(@y_scale)
-    # In this case our x-axis values are months, so we have specificed the months directly below:
-    months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
+    months = %w[JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC]
     draw_x_axis_numbers(months)
   end
 
@@ -168,16 +168,16 @@ class Visualiser
     x_coordinate = array_of_coordinate_pair[0]
     y_coordinate = array_of_coordinate_pair[1]
     setpos(@screen_height - y_coordinate, x_coordinate)
-    addch("*")
+    addch('*')
   end
 
   def format_filename_for_printing(filename)
     # Input -> *.csv filename
     # Output -> filname concatenated to a new string with spaces
-    formatted_filename = filename.delete(".csv")
-    if formatted_filename.include?("_")
-      split_string = formatted_filename.split("_")
-      return split_string.join(" ")
+    formatted_filename = filename.delete('.csv')
+    if formatted_filename.include?('_')
+      split_string = formatted_filename.split('_')
+      return split_string.join(' ')
     else
       return formatted_filename
     end
@@ -201,33 +201,27 @@ def is_file_formatted_correctly?(csv_data)
   end
 end
 
-def file_is_CSV?()
+def file_is_CSV?
   # Checks if the first argument passed at CL is "*.csv"
-  if ARGV[0].strip.match(/\w+\.csv$/)
-    return true
-  end
+  return true if ARGV[0].strip =~ /\w+\.csv$/
 
-  return false
+  false
 end
 
 # main() is called to run the program:
-def main()
+def main
   ## Section 1: INPUT & HANDLING -->
 
-  # Check there is only one argument passed at Command Line, and that argument is a CSV file.
-  # If true, save argument to variable 'filename'.
-  # Else, return error and show user correct format for starting the program and exit.
-  if ARGV.length == 1 && file_is_CSV?()
-    filename = ARGV[0].strip()
+  if ARGV.length == 1 && file_is_CSV?
+    filename = ARGV[0].strip
   else
-    puts "Input Error: \nCorrect format to use Termino: 'ruby termino-visual.rb *.csv', where * == filename"
+    puts "Usage: ruby termino-visual.rb *.csv"
     abort
   end
 
   # Check the file exists at the specified path
-  # If not, return error and suggest the user check for spelling errors and exit.
-  if !File.exist?(filename)
-    puts "PATH Error: \nThat file does not exist at the specified path. Please check for spelling errors."
+  unless File.exist?(filename)
+    puts "PATH Error: \nThat file does not exist at the specified path."
     abort
   end
 
@@ -235,40 +229,37 @@ def main()
   csv_text = File.read(filename)
   csv_data = CSV.parse(csv_text)
 
-  # After CSV file is opened, confirm there are only two columns of data, as Termino only prints scatterplot format.
-  # Future versions of Termino could allow for more columns with different graph types
+  # After CSV file is opened, confirm there are only two columns of data
   # If columns != 2, return error message and exit.
-  if !is_file_formatted_correctly?(csv_data)
-    puts "CSV Format Error: \nFile not formatted correctly. Termino v0.1 only supports CSV files formatted to 2 columns."
+  unless is_file_formatted_correctly?(csv_data)
+    puts "CSV Format Error: \nFile not formatted correctly."
     abort
   end
 
   ## Section 2: CREATE SCATTERPLOT -->
 
-  # Initialise the Curses Module, which takes a snapshot of user Terminal screen and saves height and width
-  init_screen()
-  screen_height = lines()
-  screen_width = cols()
+  init_screen
+  screen_height = lines
+  screen_width = cols
 
   # Initialise instance of Scatterplot class
   scatter = Scatterplot.new(csv_data, screen_width, screen_height)
-  # Transform CSV data and save coordinates in variable scatter_data, ready for printing to screen
   scatter_data = scatter.transformed_data
 
   ## Section 3: VISUALISE SCATTERPLOT ON TERMINAL -->
 
   # Initialise instance of Visualiser class with data to be printed to screen
-  # Note - x_scale in this case is left as an empty array because we are using month-names rather than integers
+  # Note - x_scale in this case is left as an empty array because we are using
+  # month-names rather than integers
   new_visualisation = Visualiser.new(filename, scatter_data, [], scatter.y_scale)
   # Call method to draw scatterplot to screen
-  new_visualisation.draw_scatterplot()
+  new_visualisation.draw_scatterplot
 
-  # Curses methods to refresh screen, get characters. Close screen is called on any keypress.
-  refresh()
-  getch()
-  close_screen()
+  refresh
+  getch
+  close_screen
 end
 
 # RUN PROGRAM -->
 
-main()
+main
